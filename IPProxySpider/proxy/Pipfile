@@ -1,0 +1,13 @@
+[[source]]
+url = "https://mirrors.aliyun.com/pypi/simple"
+verify_ssl = true
+
+[packages]
+requests = "*"
+"web.py" = "*"
+lxml = "*"
+chardet = "*"
+fake-useragent = "*"
+sqlalchemy = "*"
+gevent = "*"
+mysql-python = "*"
