@@ -5,9 +5,14 @@ import chardet
 import requests
 from lxml import etree
 
+from gevent import monkey
+monkey.patch_all()
+import gevent
+
 sys.path.append('..')
 from config import config
 from IPSpider.tools import tools
+from DBHelper.DBHelper import DBHelper
 
 
 class Validator(object):
@@ -16,6 +21,22 @@ class Validator(object):
         self.url = config.TEST_IP
         self.cookie = 'pgv_pvi=1605740544; ASPSESSIONIDSACCBACQ=ENJJEHFCFLAPCEBDHDKLODDJ; pgv_si=s8669043712'
         self.host = '1212.ip138.com'
+
+    def ipCheck(self, ids, db):
+        spawns = []
+        if ids:
+            print len(ids)
+            for id in ids:
+                db = DBHelper()
+                ip = db.getIp(id[0])
+                # print ip
+                spawns.append(gevent.spawn(self.inspectIp, ip, db))
+                if len(spawns) >= 500:
+                    gevent.joinall(spawns)
+                    spawns = []
+            gevent.joinall(spawns)
+        else:
+            print 'no ip in database'
 
     def inspectIp(self, ip, db):
         headers = tools.getHeader(self.host, self.cookie)

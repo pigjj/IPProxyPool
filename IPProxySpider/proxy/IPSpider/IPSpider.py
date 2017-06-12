@@ -21,13 +21,13 @@ from DBHelper.DBHelper import DBHelper
 
 class IPSpider(object):
 
-    def __init__(self, queue, db_ip_num):
+    def __init__(self, queue):
         # ip处理队列
         self.queue = queue
         # 外网ip
         self.outip = tools.getOutIP()
         # ?
-        self.db_ip_num = db_ip_num
+        # self.db_ip_num = db_ip_num
 
     def run(self):
         while(True):
@@ -38,15 +38,18 @@ class IPSpider(object):
             # select * from ip_table
             db = DBHelper()
             ids = db.getIds()
-            self.db_ip_num.value = len(ids)
+            # self.db_ip_num.value = len(ids)
             # print selected_id
             # exit()
             print '[+] ', 'db save ip:%d' % len(ids)
             if len(ids) < config.MINNUM:
                 print '[+] ', 'now ip num < MINNUM start spider...'
                 for parser in config.parser_list:
-                    selected_id = random.choice(ids)
-                    ip = db.getIp(selected_id)
+                    if ids:
+                        selected_id = random.choice(ids)
+                        ip = db.getIp(selected_id)
+                    else:
+                        ip = ''
                     spawns.append(gevent.spawn(self.spider, parser, ip))
                     if len(spawns) >= config.MAX_DOWNLOAD_CONCURRENT:
                         gevent.joinall(spawns)

@@ -10,7 +10,7 @@ class DBHelper(object):
         self.session = DBSession()
 
     def insertDb(self, ip_list):
-        print '[+ ]', 'insert db'
+        print '[+]', 'insert db'
         save_pool = []
         # print ip_list
         for ip in ip_list:

@@ -18,10 +18,10 @@ if __name__ == "__main__":
     if ids:
         print len(ids)
         for id in ids:
-            print id
+            # print id
             db = DBHelper()
             ip = db.getIp(id[0])
-            print ip.protocol
+            # print ip.protocol
             spawns.append(gevent.spawn(inspector.inspectIp, ip, db))
             # break
             if len(spawns) >= 500:

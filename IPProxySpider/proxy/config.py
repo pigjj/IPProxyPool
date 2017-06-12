@@ -11,9 +11,9 @@ class Config(object):
         self.TEST_IP = "http://1212.ip138.com/ic.asp"
         self.TIMEOUT = 10
         self.PORT = 8001
-        self.MINNUM = 50  # 有效ip值小于MINNUM时开启爬虫
+        self.MINNUM = 500  # 有效ip值小于MINNUM时开启爬虫
         self.RETRY_TIME = 3  # 重试次数
-        self.CHECK_INTERVAL = 30 * 60  # 每30min,检查一次ip
+        self.CHECK_INTERVAL = 24 * 60 * 60  # 每天,检查一次ip
         self.MAX_DOWNLOAD_CONCURRENT = 3  # 从免费下载代理网站下载的最大并发
         self.MAX_CONCURRENT_PER_PROCESS = 30  # 每个进程最大的并发数量
         self.parser_list = [
