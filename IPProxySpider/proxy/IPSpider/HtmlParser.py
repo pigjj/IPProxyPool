@@ -6,7 +6,7 @@ import base64
 from lxml import etree
 
 from config import config
-
+from Logger.Logger import logging
 
 class HtmlParser(object):
 
@@ -17,28 +17,22 @@ class HtmlParser(object):
         return self.XpathPraser(response, parser)
 
     def XpathPraser(self, response, parser):
-        print '[+] ', 'XpathPraser'
         iplist = []
         root = etree.HTML(response)
         proxys = root.xpath(parser['pattern'])
-        # proxys = root.xpath("//div[@id='main']")  # /div/div[1]/table/tr[position()>1]")
-        # print proxys
         for proxy in proxys:
             try:
                 ip = proxy.xpath(parser['position']['ip'])[0].text.replace(' ', '')
-                # print ip
                 port = proxy.xpath(parser['position']['port'])[0].text.replace(' ', '')
-                # print port
                 location = proxy.xpath(parser['position']['location'])[0].text.replace(' ', '')
-                # print location
                 iptype = proxy.xpath(parser['position']['type'])[0].text.replace(' ', '')
-                # print iptype
                 if parser['position']['protocol']:
                     protocol = proxy.xpath(parser['position']['protocol'])[0].text.replace(' ', '')
                 else:
                     protocol = ''
-                # print protocol
-                print "###", ip, ':', port, location, iptype, protocol, "###"
+
+                logging.info("{0}:{1}\t{2}\t{3}\t{4}".format(ip, port, location, iptype, protocol))
+                # print "###", ip, ':', port, location, iptype, "###"
                 proxy = {
                     "ip": ip,
                     "port": port,
@@ -47,7 +41,8 @@ class HtmlParser(object):
                     "protocol": protocol,
                 }
             except Exception as e:
-                print e
+                logging.info("Exception: {0}".format(e))
+                # print e
                 continue
             iplist.append(proxy)
         return iplist

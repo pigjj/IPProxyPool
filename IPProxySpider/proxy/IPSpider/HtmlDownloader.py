@@ -6,6 +6,7 @@ import requests
 
 from tools import tools
 from config import config
+from Logger.Logger import logging
 
 
 class HtmlDownloader(object):
@@ -17,8 +18,8 @@ class HtmlDownloader(object):
     def download(url, parser, ip):
         headers = tools.getHeader(parser.get('Host', ''), parser.get('Cookie', ''))
         # print headers
-
-        print '[+] Download url: %s' % url
+        logging.info("[+] Download url: {0}".format(url))
+        # print '[+] Download url: %s' % url
         try:
             if ip:
                 proxies = {"http": "http://%s:%s" % (ip.get('ip'), ip.get('port')), "https": "http://%s:%s" % (ip.get('ip'), ip.get('port'))}
@@ -26,16 +27,17 @@ class HtmlDownloader(object):
             else:
                 result = requests.get(url=url, headers=headers, timeout=config.TIMEOUT)
             # if len(result) < 100:
-            print "#" * 20, result, "#" * 20
+            # print "#" * 20, result, "#" * 20
             result.encoding = chardet.detect(result.content)['encoding']
             if not result.ok or len(result.content) < 500:
-                print '[-] ', 'result is not ok'
+                logging.info("[-] result is not ok")
+                # print '[-] ', 'result is not ok'
                 raise Exception('ConnectionError', 'There is an error')
             else:
-                print '[+] ', 'result is ok'
+                logging.info("[+] result is ok")
                 return result.text
         except Exception, e:
-            print '[-] ', 'Download exception: %s' % e
+            logging.info("[-] Download exception: {0}".format(e))
             count = 0  # 重试次数
             # select * from ip_table
             proxylist = []  # 查询数据库中的ip
@@ -53,13 +55,16 @@ class HtmlDownloader(object):
                     result.encoding = chardet.detect(
                         result.content)['encoding']
                     if not result.ok or len(result.content) < 500:
-                        print '[-] ', 'Exception logic result is not ok'
+                        logging.info("[-] Exception logic result is not ok")
+                        # print '[-] ', 'Exception logic result is not ok'
                         raise Exception('ConnectionError', 'Exception logic result is not ok')
                     else:
-                        print '[+] ', 'Exception logic result is ok'
+                        logging.info("[+] Exception logic result is ok")
+                        # print '[+] ', 'Exception logic result is ok'
                         return result.text
                 except Exception, e:
-                    print '[-] ', 'Exception logic download exception: %s' % e
+                    logging.info("[-] Exception logic download exception: {0}".format(e))
+                    # print '[-] ', 'Exception logic download exception: %s' % e
                     count += 1
         return
 

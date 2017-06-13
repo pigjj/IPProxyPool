@@ -17,7 +17,7 @@ sys.path.append('..')
 
 from config import config
 from DBHelper.DBHelper import DBHelper
-
+from Logger.Logger import logging
 
 class IPSpider(object):
 
@@ -31,8 +31,8 @@ class IPSpider(object):
 
     def run(self):
         while(True):
-            # 清空代理池
-            print '[+] ', 'Spider start runing'
+            logging.info("[+] Spider start runing")
+            # print '[+] ', 'Spider start runing'
             spawns = []
             # 数据库中查出ip的列表
             # select * from ip_table
@@ -41,9 +41,11 @@ class IPSpider(object):
             # self.db_ip_num.value = len(ids)
             # print selected_id
             # exit()
-            print '[+] ', 'db save ip:%d' % len(ids)
+            logging.info("[+] db save ip: {0}".format(len(ids)))
+            # print '[+] ', 'db save ip:%d' % len(ids)
             if len(ids) < config.MINNUM:
-                print '[+] ', 'now ip num < MINNUM start spider...'
+                logging.info("[+] now ip num < MINNUM start spider")
+                # print '[+] ', 'now ip num < MINNUM start spider...'
                 for parser in config.parser_list:
                     if ids:
                         selected_id = random.choice(ids)
@@ -56,8 +58,11 @@ class IPSpider(object):
                         spawns = []
                 gevent.joinall(spawns)
             else:
-                print '[+] ', 'now ip num meet the requirement,wait check again...', '#'
-            print "sleep now"
+                logging.info("[+] now ip num meet the requirement,wait check again...'")
+                # print '[+] ', 'now ip num meet the requirement,wait check again...', '#'
+
+            logging.info("[+] sleep now")
+            # print "sleep now"
             time.sleep(config.CHECK_INTERVAL)
 
     def spider(self, parser, ip):
