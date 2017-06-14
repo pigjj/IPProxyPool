@@ -9,11 +9,13 @@ from lxml import etree
 from gevent import monkey
 monkey.patch_all()
 import gevent
+from sqlalchemy.sql import and_
 
 sys.path.append('..')
 from config import config
 from IPSpider.tools import tools
 from DBHelper.DBHelper import DBHelper
+from DBHelper.models import IpPool
 from Logger.Logger import logging
 
 
@@ -28,16 +30,14 @@ class Validator(object):
         while(True):
             db = DBHelper()
             ids = db.getIds()
-            db.destory()
             spawns = []
             if ids:
                 # print len(ids)
                 logging.info("[+] there are {0} ip in database".format(len(ids)))
                 for id in ids:
-                    db = DBHelper()
                     ip = db.getIp(id[0])
                     # print ip
-                    spawns.append(gevent.spawn(self.inspectIp, ip, db))
+                    spawns.append(gevent.spawn(self.inspectIp, ip))
                     if len(spawns) >= 500:
                         gevent.joinall(spawns)
                         spawns = []
@@ -49,12 +49,14 @@ class Validator(object):
             # print 'sleep now'
             time.sleep(config.CHECK_INTERVAL)
 
-    def inspectIp(self, ip, db):
+    def inspectIp(self, ip):
         headers = tools.getHeader(self.host, self.cookie)
         if not ip:
-            db.deleteIp(ip)
+            logging.info("[-] check ip is None")
+            # db = DBHelper()
+            # db.deleteIp(ip)
         else:
-            if "HTTP" in ip.protocol and "HTTPS" in ip.protocol:
+            if ip.protocol and "HTTP" in ip.protocol and "HTTPS" in ip.protocol:
                 proxies = {"http": "http://%s:%s" % (ip.ip, ip.port), "https": "http://%s:%s" % (ip.ip, ip.port)}
             elif not ip.protocol or ip.protocol == "HTTP":
                 proxies = {"http": "http://%s:%s" % (ip.ip, ip.port)}
@@ -85,15 +87,19 @@ class Validator(object):
                     logging.info("[+] remote ip: {0},\tlocalip: {1}".format(reip, localip))
                     # print localip
                     if localip == reip:
+                        db = DBHelper()
+                        ip = db.session.query(IpPool).filter(IpPool.id == ip.id).first()
                         db.deleteIp(ip)
+                        logging.info("[-] Drop ip: {0}, port: {1}".format(ip.ip, ip.port))
 
             except Exception, e:
                 # print e
-                logging.info("[-] Drop ip: {0}, port: {1}".format(ip.ip, ip.port))
                 # print "Drop ip: {0}, port: {1}".format(ip.ip, ip.port)
+                db = DBHelper()
+                ip = db.session.query(IpPool).filter(IpPool.id == ip.id).first()
                 db.deleteIp(ip)
+                logging.info("[-] Drop ip: {0}, port: {1}".format(ip.ip, ip.port))
 
-        db.destory()
 inspector = Validator()
 
 # if __name__ == "__main__":

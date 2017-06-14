@@ -8,6 +8,8 @@ class DBHelper(object):
 
     def __init__(self):
         self.session = DBSession()
+        # keep a session open
+        self.session.expire_on_commit = False
 
     def insertDb(self, ip_list):
         print '[+]', 'insert db'
@@ -47,7 +49,7 @@ class DBHelper(object):
         # self.session.close()
         return ip
 
-    def destory(self):
+    def __del__(self):
         self.session.close()
 
 # if __name__ == '__main__':
